@@ -1,15 +1,15 @@
 <html>
 <head>
-    <title>arq_restore - restore from Arq online backup</title>
+    <title>arq_restore - restore from Arq backup</title>
     <link href="../css/styles.css" rel="stylesheet" type="text/css" />
     </head>
 <body>
 <div id="contentsHome">
 <h1>arq_restore</h1>
-<p>An open-source command-line utility for restoring from backups created by <a href="http://www.haystacksoftware.com/arq/">Arq</a></p>
+<p>An open-source command-line utility for restoring from backups created by <a href="http://www.arqbackup.com/">Arq</a></p>
 <p>Download a binary version <a href="arq_restore.zip">here</a>.</p>
-<p>Get the source code <a href="http://github.com/sreitshamer/arq_restore">here</a>.</p>
-<p>The data format is documented <a href="http://www.haystacksoftware.com/arq/s3_data_format.txt">here</a>.</p>
+<p>Get the source code <a href="http://github.com/arqbackup/arq_restore">here</a>.</p>
+<p>The data format is documented <a href="http://www.arqbackup.com/arq/arq_data_format.txt">here</a>.</p>
 
 <h2>Usage</h2>
 
@@ -21,39 +21,40 @@
 
 <pre><code>
 Usage:
-    arq_restore [-l log_level] listcomputers &lt;target_type&gt; &lt;target_params&gt;
-    arq_restore [-l log_level] listfolders &lt;computer_uuid&gt; &lt;encryption_password&gt; &lt;target_type&gt; &lt;target_params&gt;
-    arq_restore [-l log_level] restore &lt;computer_uuid&gt; &lt;encryption_password&gt; &lt;folder_uuid&gt; &lt;bytes_per_second&gt; &lt;target_type&gt; &lt;target_params&gt;
+    arq_restore [-l log_level] listtargets
+    arq_restore [-l log_level] addtarget &lt;nickname&gt; aws &lt;access_key&gt; &lt;secret_key&gt;
+    arq_restore [-l log_level] addtarget &lt;nickname&gt; local &lt;path&gt;
+    arq_restore [-l log_level] deletetarget &lt;nickname&gt;
+
+    arq_restore [-l log_level] listcomputers &lt;target_nickname&gt;
+    arq_restore [-l log_level] listfolders &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;encryption_password&gt;
+    arq_restore [-l log_level] listtree &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;encryption_password&gt; &lt;folder_uuid&gt;
+    arq_restore [-l log_level] restore &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;encryption_password&gt; &lt;folder_uuid&gt;
+    arq_restore [-l log_level] clearcache &lt;target_nickname&gt;
     
-target_params by target type:
-    aws:                 access_key secret_key bucket_name
-    sftp:                hostname port path username password_or_keyfile [keyfile_passphrase]
-    greenqloud:          access_key secret_key bucket_name
-    dreamobjects:        public_key secret_key bucket_name
-    googlecloudstorage:  public_key secret_key bucket_name
-    s3compatible:        service_url access_key secret_key bucket_name
-    googledrive:         refresh_token path
+log levels: none, error, warn, info, and debug
+log output: ~/Library/Logs/arq_restorer
 </code></pre>
 
-<p>As you can see the arguments are different depending on the type of your storage destination.</p>
+<h3>Configuring a Target</h3>
 
-<h3>List Computers</h3>
+<p>arq_restore can view and restore from both AWS and local backup sets. If you've got a backup set at another destination type, copy the backup set's data to a local folder and then add that as a target to restore from.</p>
 
-<p>To list all the computers in your destination, use the <code>listcomputers</code> command. Here's an example using AWS:</p>
+<p>To configure an AWS target you'll need an access key ID and secret access key to access the AWS data. See the Arq help for more information on creating those keys: <a href="https://www.arqbackup.com/documentation/pages/create_aws_key_pair.html">Create AWS Key Pair</a></p>
+
+<h3>Listing Computers</h3>
+
+<p>To list "computers" (a.k.a. "backup sets"), use the 'listcomputers' command with the nickname for the target you've configured.</p>
+
 
 <pre><code>
-$ arq_restore listcomputers aws AKIAIPXLWYHBMEO22ZNQ QMqT0cdSuHs6eCanSVGr/odThlgoBqYfiWuOsOGI akiaiyuk3n3tme6l4hfa.com.haystacksoftware.arq
-target: Amazon
-    computer FFF83999-A5A5-4E56-B680-05E68FA51814
-        Elise's iMac (elise)
-    computer 3BA5A6DF-C5EC-409F-9B97-9D437B289BC7
-        Mac Mini (stefan)
-    computer 2CD9AD49-AE8E-4456-9C60-E75D4B33D4D1
-        Sam Reitshamer's computer (sam)
-    computer 32D9D7A2-3B3E-4BE7-B85B-0605AF24F570
-        Stefan's MacBook Pro (stefan)
-    computer 75EB74E3-2B18-4B1C-A54C-A518640C83C8
-        office iMac (stefan)
+$ arq_restore addtarget mydisk local /Volumes/8tb/backups
+$ arq_restore listcomputers mydisk
+target: mydisk
+    computer 725FAF56-B678-4258-BE24-E64E400D750F
+        iMac (stefan)
+    computer FECF74FB-8DB6-46C0-9B0B-DBC48DC3CBB7
+        iMac (stefan)
 
 </code></pre>
 
@@ -61,31 +62,12 @@ target: Amazon
 
 <p>To list the folders in a computer's backup set, use the <code>listfolders</code> command:</p>
 
-
 <pre><code>
-$ arq_restore listfolders 32D9D7A2-3B3E-4BE7-B85B-0605AF24F570 password aws AKIAIPXLWYHBMEO22ZNQ QMqT0cdSuHs6eCanSVGr/odThlgoBqYfiWuOsOGI akiaiyuk3n3tme6l4hfa.com.haystacksoftware.arq
-target   Amazon
-computer 32D9D7A2-3B3E-4BE7-B85B-0605AF24F570
-    folder /Users/stefan/.gnupg
-        uuid 7733A367-E6BA-4A71-A3BE-BCC3A67CF036
-    folder /Users/stefan/.ssh
-        uuid A66799E8-1046-4458-84B7-C1A0BD751715
-    folder /Applications
-        uuid 4A2942C3-463F-4B49-B6F8-AF847BA97496
-    folder /Users/stefan/bin
-        uuid E1C3C6ED-0E22-4EC1-AAD8-08CDE0A3ED19
-    folder /Users/stefan/Desktop
-        uuid B5547B68-832A-4C5C-96F1-5DA8CBF3F645
-    folder /Users/stefan/Documents
-        uuid A215E970-1320-4B95-8133-7A50F68FC59D
-    folder /Users/stefan/Pictures/iPhoto Library
-        uuid 017CBF62-BD6C-4580-9A00-8D008D06B84E
-    folder /Users/stefan/Library
-        uuid 4F86F72A-7D70-4C55-A59A-038B96852C47
-    folder /Volumes/Spinning Disk/stefan/Music
-        uuid 7C554E65-4324-4B81-9675-4D6EA686B0DD
-    folder /Users/stefan/src
-        uuid 1D142EAB-3218-48BD-BF5B-4EAEF504783E
+$ arq_restore listfolders mydisk 725FAF56-B678-4258-BE24-E64E400D750F mypassword
+target   mydisk
+computer 725FAF56-B678-4258-BE24-E64E400D750F
+    folder /Users/stefan/1somefiles
+        uuid 8029F33B-A936-491D-B62D-123997161062
 
 </code></pre>
 
@@ -94,25 +76,24 @@ computer 32D9D7A2-3B3E-4BE7-B85B-0605AF24F570
 <p>To restore (download) the latest backup of a folder, use the <code>restore</code> command:</p>
 
 <pre><code>
-$ arq_restore restore 32D9D7A2-3B3E-4BE7-B85B-0605AF24F570 password 7C554E65-4324-4B81-9675-4D6EA686B0DD 10000 aws AKIAIPXLWYHBMEO22ZNQ QMqT0cdSuHs6eCanSVGr/odThlgoBqYfiWuOsOGI akiaiyuk3n3tme6l4hfa.com.haystacksoftware.arq
+$ arq_restore restore mydisk 725FAF56-B678-4258-BE24-E64E400D750F mypassword 8029F33B-A936-491D-B62D-123997161062
+target   mydisk
+computer 725FAF56-B678-4258-BE24-E64E400D750F
+folder   8029F33B-A936-491D-B62D-123997161062
 
-restoring folder /Volumes/Spinning Disk/stefan/Music to /Users/stefan/temp/Music
+restoring folder /Users/stefan/1somefiles to /Users/stefan/Desktop/1somefiles
+
+2017-02-03 14:38:41.853 arq_restore[27489:446696] setting log file permissions to 666 for /Users/stefan/Library/Logs/arq_restore/arq_restore 2017-02-03 19-38.log
+status: Caching object list from mydisk
+status: Reading pack list...
 
 ...
 
 </code></pre>
 
-<h2>Google Drive</h2>
-
-<p>If you want to use arq_restore with your Google Drive account, it's a bit more complicated. This is because Google Drive uses OAuth authentication. Arq has a client ID and client secret, but we need to keep that to ourselves, so you'll have to create your own client ID and client secret, authorize it for your account, and then copy/paste it into the arq_restore source and compile it.</p>
-
-<p>Get your own client ID and client secret at the <a href="https://console.developers.google.com/project">Google Developers Console</a>.</p>
-
-<p>Google's <a href="https://code.google.com/p/gtm-oauth2/">gtm-oauth2</a> project has a handy example app. You can enter your client ID and secret and then use it to authorize access for that client ID to your Google Drive account.</p>
-
 <h2>License</h2>
 
-<pre><code>Copyright (c) 2009-2014, Stefan Reitshamer http://www.haystacksoftware.com
+<pre><code>Copyright (c) 2009-2017, Haystack Software LLC http://www.haystacksoftware.com
 
 All rights reserved.
 
