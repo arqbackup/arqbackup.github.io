@@ -29,7 +29,7 @@ Usage:
     arq_restore [-l log_level] listcomputers &lt;target_nickname&gt;
     arq_restore [-l log_level] listfolders &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;encryption_password&gt;
     arq_restore [-l log_level] listtree &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;encryption_password&gt; &lt;folder_uuid&gt;
-    arq_restore [-l log_level] restore &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;encryption_password&gt; &lt;folder_uuid&gt;
+    arq_restore [-l log_level] restore &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;encryption_password&gt; &lt;folder_uuid&gt; &#91;relative_path&#93;
     arq_restore [-l log_level] clearcache &lt;target_nickname&gt;
     
 log levels: none, error, warn, info, and debug
@@ -90,6 +90,15 @@ status: Reading pack list...
 ...
 
 </code></pre>
+
+<p>To restore only a subset of a folder, add the relative path within the folder as an additional argument:
+<pre><code>
+$ arq_restore restore mydisk 725FAF56-B678-4258-BE24-E64E400D750F mypassword 8029F33B-A936-491D-B62D-123997161062 /subdir1/subdir2
+
+...
+
+</code></pre>
+
 
 <h2>License</h2>
 
