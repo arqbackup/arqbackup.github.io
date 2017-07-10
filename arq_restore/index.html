@@ -21,17 +21,18 @@
 
 <pre><code>
 Usage:
-    arq_restore [-l log_level] listtargets
-    arq_restore [-l log_level] addtarget &lt;nickname&gt; aws &lt;access_key&gt; &lt;secret_key&gt;
-    arq_restore [-l log_level] addtarget &lt;nickname&gt; local &lt;path&gt;
-    arq_restore [-l log_level] deletetarget &lt;nickname&gt;
+    arq_restore [-l loglevel] listtargets
+    arq_restore [-l loglevel] addtarget &lt;nickname&gt; aws &lt;access_key&gt; &lt;secret_key&gt;
+    arq_restore [-l loglevel] addtarget &lt;nickname&gt; local &lt;path&gt;
+    arq_restore [-l loglevel] deletetarget &lt;nickname&gt;
 
-    arq_restore [-l log_level] listcomputers &lt;target_nickname&gt;
-    arq_restore [-l log_level] listfolders &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;encryption_password&gt;
-    arq_restore [-l log_level] listtree &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;encryption_password&gt; &lt;folder_uuid&gt;
-    arq_restore [-l log_level] restore &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;encryption_password&gt; &lt;folder_uuid&gt; &#91;relative_path&#93;
-    arq_restore [-l log_level] clearcache &lt;target_nickname&gt;
-    
+    arq_restore [-l loglevel] listcomputers &lt;target_nickname&gt;
+    arq_restore [-l loglevel] listfolders &lt;target_nickname&gt; &lt;computer_uuid&gt;
+    arq_restore [-l loglevel] printplist &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;folder_uuid&gt;
+    arq_restore [-l loglevel] listtree &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;folder_uuid&gt;
+    arq_restore [-l loglevel] restore &lt;target_nickname&gt; &lt;computer_uuid&gt; &lt;folder_uuid&gt;
+    arq_restore [-l loglevel] clearcache &lt;target_nickname&gt;
+
 log levels: none, error, warn, info, and debug
 log output: ~/Library/Logs/arq_restorer
 </code></pre>
@@ -63,7 +64,8 @@ target: mydisk
 <p>To list the folders in a computer's backup set, use the <code>listfolders</code> command:</p>
 
 <pre><code>
-$ arq_restore listfolders mydisk 725FAF56-B678-4258-BE24-E64E400D750F mypassword
+$ arq_restore listfolders mydisk 725FAF56-B678-4258-BE24-E64E400D750F
+enter encryption password: ...
 target   mydisk
 computer 725FAF56-B678-4258-BE24-E64E400D750F
     folder /Users/stefan/1somefiles
@@ -76,7 +78,8 @@ computer 725FAF56-B678-4258-BE24-E64E400D750F
 <p>To restore (download) the latest backup of a folder, use the <code>restore</code> command:</p>
 
 <pre><code>
-$ arq_restore restore mydisk 725FAF56-B678-4258-BE24-E64E400D750F mypassword 8029F33B-A936-491D-B62D-123997161062
+$ arq_restore restore mydisk 725FAF56-B678-4258-BE24-E64E400D750F 8029F33B-A936-491D-B62D-123997161062
+enter encryption password: ...
 target   mydisk
 computer 725FAF56-B678-4258-BE24-E64E400D750F
 folder   8029F33B-A936-491D-B62D-123997161062
